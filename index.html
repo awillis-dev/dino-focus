@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dino Focus</title>
+<style>
+  :root {
+    --bg1: #FDF3E7;
+    --bg2: #E9F3EE;
+    --card: #FFFFFF;
+    --ink: #34302A;
+    --ink-soft: #7A7368;
+    --p1: #F5A199;
+    --p1-text: #7A2E26;
+    --p2: #F7CB8B;
+    --p2-text: #7A5417;
+    --p3: #9BD9C4;
+    --p3-text: #1E5A46;
+    --p4: #B7ACE0;
+    --p4-text: #423580;
+    --accent: #6E8FA8;
+    --accent-dark: #3E5C73;
+    --radius: 16px;
+    --input-bg: #ffffff;
+    --border-soft: #e5e0d8;
+  }
+
+  body[data-theme="dark"] {
+    --bg1: #241F2E;
+    --bg2: #1B2A28;
+    --card: #2C2736;
+    --ink: #EDE8DD;
+    --ink-soft: #A9A196;
+    --p1: #E88A80;
+    --p1-text: #FCE3E0;
+    --p2: #E0AE68;
+    --p2-text: #FCEEDA;
+    --p3: #6FBBA0;
+    --p3-text: #DCF3EB;
+    --p4: #9E8FDE;
+    --p4-text: #EDE8FA;
+    --accent: #7FA3BC;
+    --accent-dark: #A9C6DA;
+    --input-bg: #241F2E;
+    --border-soft: #423C4E;
+  }
+
+  body[data-theme="dark"] .end-time-bar,
+  body[data-theme="dark"] .task-card {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    min-height: 100vh;
+    color: var(--ink);
+    padding: 28px 20px 80px;
+  }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .date {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .end-time-bar {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin: 16px 0 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(60,50,30,0.06);
+  }
+
+  .end-time-bar .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+  }
+
+  .end-time-bar .value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent-dark);
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    margin: 26px 0 10px;
+  }
+
+  .task-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(60,50,30,0.06);
+    border-left: 6px solid var(--p3);
+  }
+
+  .task-card.p1 { border-left-color: var(--p1); }
+  .task-card.p2 { border-left-color: var(--p2); }
+  .task-card.p3 { border-left-color: var(--p3); }
+  .task-card.p4 { border-left-color: var(--p4); }
+
+  .task-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .task-name {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .badge.p1 { background: var(--p1); color: var(--p1-text); }
+  .badge.p2 { background: var(--p2); color: var(--p2-text); }
+  .badge.p3 { background: var(--p3); color: var(--p3-text); }
+  .badge.p4 { background: var(--p4); color: var(--p4-text); }
+
+  .task-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .est-input {
+    width: 56px;
+    padding: 5px 7px;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    font-size: 13px;
+    text-align: center;
+    background: var(--input-bg);
+    color: var(--ink);
+  }
+
+  .mini-btn {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 11px;
+    border-radius: 8px;
+    border: 1px solid var(--border-soft);
+    background: var(--input-bg);
+    cursor: pointer;
+    color: var(--ink);
+  }
+
+  .mini-btn:active { transform: scale(0.96); }
+
+  .mini-btn.start {
+    background: var(--accent);
+    color: white;
+    border: none;
+  }
+
+  .mini-btn.ghost {
+    background: transparent;
+    border: none;
+    color: var(--ink-soft);
+  }
+
+  .subtasks {
+    margin-top: 10px;
+    padding-left: 4px;
+  }
+
+  .subtask-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 4px 0;
+  }
+
+  .subtask-row input[type=text] {
+    flex: 1;
+    border: none;
+    border-bottom: 1px dashed #ddd6ca;
+    padding: 3px 2px;
+    font-size: 13px;
+    background: transparent;
+  }
+
+  .add-subtask {
+    font-size: 12px;
+    color: var(--accent-dark);
+    cursor: pointer;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  .empty-note {
+    font-size: 13px;
+    color: var(--ink-soft);
+    padding: 6px 2px;
+  }
+
+  /* focus mode */
+  #focusOverlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 20px;
+    text-align: center;
+  }
+
+  #focusOverlay.show { display: flex; }
+
+  .focus-task-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .focus-badge {
+    margin-bottom: 26px;
+  }
+
+  .timer-ring {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin-bottom: 26px;
+  }
+
+  .timer-display {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 44px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-dark);
+  }
+
+  .focus-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  .focus-btn {
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .focus-btn.primary { background: var(--accent); color: white; }
+  .focus-btn.secondary { background: var(--card); color: var(--ink); border: 1px solid #e5e0d8; }
+  .focus-btn.done { background: var(--p3); color: var(--p3-text); }
+
+  #confettiCanvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1200;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-dark);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-size: 13px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+    z-index: 1100;
+  }
+
+  .toast.show { opacity: 1; }
+
+  .sound-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  /* header buttons */
+  .header-btns {
+    display: flex;
+    gap: 8px;
+  }
+
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--border-soft);
+    background: var(--card);
+    color: var(--ink);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* task icon + drag handle */
+  .drag-handle {
+    cursor: grab;
+    color: var(--ink-soft);
+    font-size: 16px;
+    padding: 0 2px;
+    user-select: none;
+  }
+
+  .task-card.dragging {
+    opacity: 0.4;
+  }
+
+  .task-card.drag-over {
+    border-top: 3px dashed var(--accent);
+  }
+
+  .task-icon-btn {
+    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px dashed var(--border-soft);
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .icon-picker {
+    position: absolute;
+    background: var(--card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 8px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    z-index: 50;
+  }
+
+  .icon-picker button {
+    font-size: 18px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 4px;
+  }
+
+  .icon-picker button:hover {
+    background: var(--bg2);
+  }
+
+  .sync-btn {
+    background: var(--p3);
+    color: var(--p3-text);
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  .sync-btn:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  .connect-panel {
+    background: var(--card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin: 10px 0 16px;
+  }
+
+  .connect-panel-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .connect-panel-copy {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin: 0 0 10px;
+  }
+
+  .connect-panel-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .connect-panel-row input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    font-size: 13px;
+    background: var(--input-bg);
+    color: var(--ink);
+  }
+
+  .connect-panel-status {
+    font-size: 12px;
+    color: var(--ink-soft);
+    min-height: 16px;
+  }
+
+  .connect-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--card);
+    border: 1px dashed var(--accent);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin: 10px 0 16px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+
+  #miniTimer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 12px 16px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+    z-index: 1300;
+    cursor: move;
+    text-align: center;
+    min-width: 130px;
+    border: 1px solid var(--border-soft);
+  }
+
+  #miniTimerText {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent-dark);
+    font-variant-numeric: tabular-nums;
+  }
+
+  #miniTimerLabel {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #miniTimerClose {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span style="font-size:34px; line-height:1;">🦕</span>
+      <div>
+        <h1>Dino Focus</h1>
+        <div class="date" id="dateLabel"></div>
+      </div>
+    </div>
+    <div class="header-btns">
+      <button class="icon-btn" id="connectBtn" title="Connect Todoist">🔗</button>
+      <button class="icon-btn" id="themeToggle" title="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <div id="connectPanel" class="connect-panel hidden">
+    <div class="connect-panel-title">Connect Todoist</div>
+    <p class="connect-panel-copy">Paste a personal API token so this app can pull today's tasks live, right from your browser — no re-syncing through chat needed. Find yours at Todoist → Settings → Integrations → Developer.</p>
+    <div class="connect-panel-row">
+      <input type="password" id="tokenInput" placeholder="Todoist API token">
+      <button class="mini-btn start" id="saveTokenBtn">Save</button>
+    </div>
+    <div class="connect-panel-row" id="disconnectRow" style="display:none;">
+      <button class="mini-btn ghost" id="disconnectBtn">Disconnect</button>
+    </div>
+    <div class="connect-panel-status" id="connectStatus"></div>
+  </div>
+
+  <div id="connectBanner" class="connect-banner hidden">
+    <span>Connect Todoist to keep this list live, no re-downloading needed.</span>
+    <button class="mini-btn start" id="bannerConnectBtn">Connect</button>
+  </div>
+
+  <button class="sync-btn" id="syncBtn" style="margin-bottom:16px;">Sync with Todoist</button>
+
+  <div class="end-time-bar">
+    <div>
+      <div class="label">Projected finish</div>
+      <div class="value" id="endTimeValue">--:--</div>
+    </div>
+    <div>
+      <div class="label">Tasks left</div>
+      <div class="value" id="tasksLeftValue">0</div>
+    </div>
+  </div>
+
+  <div class="section-title" style="display:flex; align-items:center; justify-content:space-between;">
+    <span>Now</span>
+    <label style="display:flex; align-items:center; gap:6px; font-size:11px; text-transform:none; letter-spacing:normal; color:var(--ink-soft); cursor:pointer; font-weight:600;">
+      <input type="checkbox" id="focusViewToggle"> Show top 3 only
+    </label>
+  </div>
+  <div id="nowList"></div>
+  <div class="empty-note" id="nowMoreNote" style="display:none;"></div>
+  <div class="empty-note" id="nowEmpty" style="display:none;">Nothing queued — pull something in from Not Now.</div>
+
+  <div class="section-title">Not now</div>
+  <div id="notNowList"></div>
+  <div class="empty-note" id="notNowEmpty" style="display:none;">Empty — tap "Not now" on a task to stash it here.</div>
+
+  <div class="section-title">Done today</div>
+  <div id="doneList"></div>
+  <div class="empty-note" id="doneEmpty">Nothing finished yet — you've got this.</div>
+
+  <button class="mini-btn" id="historyToggle" style="margin-top:18px;">Show all-time history</button>
+  <div id="historyPanel" class="hidden" style="margin-top:10px;">
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<div id="focusOverlay">
+  <div class="focus-task-name" id="focusTaskName"></div>
+  <div class="focus-badge"><span class="badge" id="focusBadge"></span></div>
+  <div class="timer-ring">
+    <svg width="240" height="240" viewBox="0 0 240 240">
+      <circle cx="120" cy="120" r="108" fill="none" stroke="#ffffff" stroke-width="14"/>
+      <circle id="ringProgress" cx="120" cy="120" r="108" fill="none" stroke="#6E8FA8" stroke-width="14" stroke-linecap="round" transform="rotate(-90 120 120)"/>
+    </svg>
+    <div class="timer-display" id="timerDisplay">00:00</div>
+  </div>
+  <div class="focus-controls">
+    <button class="focus-btn secondary" id="minus5">-5 min</button>
+    <button class="focus-btn primary" id="pauseResume">Pause</button>
+    <button class="focus-btn secondary" id="plus5">+5 min</button>
+  </div>
+  <div class="focus-controls">
+    <button class="focus-btn done" id="finishNow">Mark done</button>
+    <button class="focus-btn secondary" id="exitFocus">Back to list</button>
+  </div>
+  <label class="sound-toggle"><input type="checkbox" id="chimeToggle" checked> Chime when time's up</label>
+  <button class="focus-btn secondary" id="popOutBtn" style="margin-top:14px;">Pop out floating timer</button>
+</div>
+
+<div id="miniTimer" style="display:none;">
+  <div id="miniTimerText">00:00</div>
+  <div id="miniTimerLabel"></div>
+  <button id="miniTimerClose" title="Close mini timer">✕</button>
+</div>
+
+<canvas id="confettiCanvas"></canvas>
+<div class="toast" id="toast"></div>
+
+<script>
+const PRIORITY_META = {
+  p1: { label: 'Priority 1', color: 'p1' },
+  p2: { label: 'Priority 2', color: 'p2' },
+  p3: { label: 'Priority 3', color: 'p3' },
+  p4: { label: 'Priority 4', color: 'p4' }
+};
+
+const ICON_SET = ['📌','✅','💻','📚','🏠','🚗','💰','📅','🧹','📝','📦','🎓','☎️','✉️','🛠️','🍽️','🧠','🎯','⏰','🌱'];
+
+const seedTasks = [
+  { id: "6hGQH4Qhc749hRQg", content: "clean up apple file system", priority: "p2", est: 20, icon: "🧹" },
+  { id: "6hGQPVxvjhrwFV7V", content: "upload AI projects to github", priority: "p2", est: 25, icon: "💻" },
+  { id: "6hGRp9gXCG548gmg", content: "summarize section: truth tables , logic laws", priority: "p2", est: 30, icon: "📚" },
+  { id: "6hGQW6rpXf8J7hVg", content: "learn how to build claude projects", priority: "p3", est: 20, icon: "🧠" }
+];
+
+let state = {
+  now: seedTasks.map(t => ({ ...t, subtasks: [] })),
+  notNow: [],
+  done: []
+};
+
+// Use Claude.ai's built-in storage when this is running inside Claude.ai's
+// artifact preview; fall back to real localStorage when opened as a plain
+// HTML file (e.g. double-clicked locally in Chrome), so state persists either way.
+const storageBackend = (function () {
+  const hasClaudeStorage = typeof window.storage !== 'undefined'
+    && window.storage
+    && typeof window.storage.get === 'function';
+
+  if (hasClaudeStorage) {
+    return window.storage;
+  }
+
+  return {
+    async get(key) {
+      const value = localStorage.getItem(key);
+      if (value === null) throw new Error('not found');
+      return { key, value };
+    },
+    async set(key, value) {
+      localStorage.setItem(key, value);
+      return { key, value };
+    },
+    async delete(key) {
+      localStorage.removeItem(key);
+      return { key, deleted: true };
+    }
+  };
+})();
+
+const STORAGE_KEY = 'focusflow:' + new Date().toISOString().slice(0,10);
+const THEME_KEY = 'focusflow:theme';
+const FOCUS_VIEW_KEY = 'focusflow:focusView';
+let focusViewOn = false;
+
+async function loadFocusView() {
+  try {
+    const res = await storageBackend.get(FOCUS_VIEW_KEY);
+    if (res && res.value === 'on') {
+      focusViewOn = true;
+      document.getElementById('focusViewToggle').checked = true;
+    }
+  } catch (e) {}
+}
+
+document.getElementById('focusViewToggle').addEventListener('change', async (e) => {
+  focusViewOn = e.target.checked;
+  try {
+    await storageBackend.set(FOCUS_VIEW_KEY, focusViewOn ? 'on' : 'off');
+  } catch (err) {}
+  render();
+});
+
+async function loadTheme() {
+  try {
+    const res = await storageBackend.get(THEME_KEY);
+    if (res && res.value === 'dark') {
+      document.body.setAttribute('data-theme', 'dark');
+      document.getElementById('themeToggle').textContent = '☀️';
+    }
+  } catch (e) {}
+}
+
+document.getElementById('themeToggle').addEventListener('click', async () => {
+  const isDark = document.body.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.body.removeAttribute('data-theme');
+    document.getElementById('themeToggle').textContent = '🌙';
+  } else {
+    document.body.setAttribute('data-theme', 'dark');
+    document.getElementById('themeToggle').textContent = '☀️';
+  }
+  try {
+    await storageBackend.set(THEME_KEY, isDark ? 'light' : 'dark');
+  } catch (e) {}
+});
+
+async function loadState() {
+  try {
+    const res = await storageBackend.get(STORAGE_KEY);
+    if (res && res.value) {
+      state = JSON.parse(res.value);
+    }
+  } catch (e) {
+    // no saved state yet, use seed
+  }
+  render();
+}
+
+async function saveState() {
+  try {
+    await storageBackend.set(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    // best effort
+  }
+}
+
+function fmtTime(date) {
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+function updateDateLabel() {
+  document.getElementById('dateLabel').textContent = new Date().toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+}
+
+function computeEndTime() {
+  const totalMins = state.now.reduce((sum, t) => sum + (t.est || 0), 0);
+  const end = new Date(Date.now() + totalMins * 60000);
+  document.getElementById('endTimeValue').textContent = state.now.length ? fmtTime(end) : '--:--';
+  document.getElementById('tasksLeftValue').textContent = state.now.length;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function render() {
+  computeEndTime();
+  const visibleNow = focusViewOn ? state.now.slice(0, 3) : state.now;
+  renderList('nowList', visibleNow, 'now');
+  renderList('notNowList', state.notNow, 'notNow');
+  renderList('doneList', state.done, 'done');
+
+  const hiddenCount = state.now.length - visibleNow.length;
+  const moreNote = document.getElementById('nowMoreNote');
+  if (hiddenCount > 0) {
+    moreNote.style.display = 'block';
+    moreNote.textContent = `+${hiddenCount} more task${hiddenCount === 1 ? '' : 's'} hidden — toggle off to see them`;
+  } else {
+    moreNote.style.display = 'none';
+  }
+
+  document.getElementById('nowEmpty').style.display = state.now.length ? 'none' : 'block';
+  document.getElementById('notNowEmpty').style.display = state.notNow.length ? 'none' : 'block';
+  document.getElementById('doneEmpty').style.display = state.done.length ? 'none' : 'block';
+
+  saveState();
+}
+
+function renderList(containerId, list, kind) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  list.forEach((task, idx) => {
+    const meta = PRIORITY_META[task.priority] || PRIORITY_META.p4;
+    const card = document.createElement('div');
+    card.className = 'task-card ' + meta.color;
+
+    const top = document.createElement('div');
+    top.className = 'task-top';
+
+    if (kind === 'now') {
+      const handle = document.createElement('span');
+      handle.className = 'drag-handle';
+      handle.textContent = '⠿';
+      handle.draggable = true;
+      handle.addEventListener('dragstart', (e) => {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(idx));
+        card.classList.add('dragging');
+      });
+      handle.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+      });
+      top.appendChild(handle);
+
+      card.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        card.classList.add('drag-over');
+      });
+      card.addEventListener('dragleave', () => {
+        card.classList.remove('drag-over');
+      });
+      card.addEventListener('drop', (e) => {
+        e.preventDefault();
+        card.classList.remove('drag-over');
+        const fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        if (isNaN(fromIdx) || fromIdx === idx) return;
+        const [moved] = state.now.splice(fromIdx, 1);
+        state.now.splice(idx, 0, moved);
+        render();
+      });
+    }
+
+    const iconBtn = document.createElement('button');
+    iconBtn.className = 'task-icon-btn';
+    iconBtn.textContent = task.icon || '📌';
+    iconBtn.type = 'button';
+    if (kind !== 'done') {
+      iconBtn.addEventListener('click', (e) => openIconPicker(e, task));
+    } else {
+      iconBtn.style.cursor = 'default';
+      iconBtn.style.borderStyle = 'solid';
+    }
+    top.appendChild(iconBtn);
+
+    const name = document.createElement('div');
+    name.className = 'task-name';
+    name.textContent = task.content;
+    if (kind === 'done') name.style.textDecoration = 'line-through';
+    if (kind === 'done') name.style.color = 'var(--ink-soft)';
+
+    const badge = document.createElement('span');
+    badge.className = 'badge ' + meta.color;
+    badge.textContent = meta.label.replace('Priority ', 'P');
+
+    top.appendChild(name);
+    top.appendChild(badge);
+    card.appendChild(top);
+
+    if (kind === 'now') {
+      const controls = document.createElement('div');
+      controls.className = 'task-controls';
+
+      const estInput = document.createElement('input');
+      estInput.type = 'number';
+      estInput.className = 'est-input';
+      estInput.value = task.est;
+      estInput.min = 1;
+      estInput.addEventListener('change', () => {
+        task.est = Math.max(1, parseInt(estInput.value, 10) || 1);
+        render();
+      });
+
+      const minLabel = document.createElement('span');
+      minLabel.style.fontSize = '12px';
+      minLabel.style.color = 'var(--ink-soft)';
+      minLabel.textContent = 'min';
+
+      const startBtn = document.createElement('button');
+      startBtn.className = 'mini-btn start';
+      startBtn.textContent = 'Start';
+      startBtn.addEventListener('click', () => startFocus(task));
+
+      const breakBtn = document.createElement('button');
+      breakBtn.className = 'mini-btn';
+      breakBtn.textContent = 'Break it down';
+      breakBtn.addEventListener('click', () => toggleSubtasks(card, task));
+
+      const notNowBtn = document.createElement('button');
+      notNowBtn.className = 'mini-btn ghost';
+      notNowBtn.textContent = 'Not now';
+      notNowBtn.addEventListener('click', () => moveBetween(task, 'now', 'notNow'));
+
+      controls.appendChild(estInput);
+      controls.appendChild(minLabel);
+      controls.appendChild(startBtn);
+      controls.appendChild(breakBtn);
+      controls.appendChild(notNowBtn);
+      card.appendChild(controls);
+
+      if (task.subtasks && task.subtasks.length) {
+        const sub = buildSubtaskList(task);
+        card.appendChild(sub);
+      }
+    }
+
+    if (kind === 'notNow') {
+      const controls = document.createElement('div');
+      controls.className = 'task-controls';
+      const backBtn = document.createElement('button');
+      backBtn.className = 'mini-btn';
+      backBtn.textContent = 'Bring to Now';
+      backBtn.addEventListener('click', () => moveBetween(task, 'notNow', 'now'));
+      controls.appendChild(backBtn);
+      card.appendChild(controls);
+    }
+
+    if (kind === 'done') {
+      const controls = document.createElement('div');
+      controls.className = 'task-controls';
+      const undoBtn = document.createElement('button');
+      undoBtn.className = 'mini-btn ghost';
+      undoBtn.textContent = 'Move back to Now';
+      undoBtn.addEventListener('click', () => moveBetween(task, 'done', 'now'));
+      controls.appendChild(undoBtn);
+      card.appendChild(controls);
+    }
+
+    container.appendChild(card);
+  });
+}
+
+function buildSubtaskList(task) {
+  const wrap = document.createElement('div');
+  wrap.className = 'subtasks';
+  task.subtasks.forEach((st, i) => {
+    const row = document.createElement('div');
+    row.className = 'subtask-row';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = st.done;
+    cb.addEventListener('change', () => { st.done = cb.checked; render(); });
+    const txt = document.createElement('input');
+    txt.type = 'text';
+    txt.value = st.text;
+    txt.addEventListener('change', () => { st.text = txt.value; saveState(); });
+    row.appendChild(cb);
+    row.appendChild(txt);
+    wrap.appendChild(row);
+  });
+  return wrap;
+}
+
+function toggleSubtasks(card, task) {
+  if (!task.subtasks) task.subtasks = [];
+  if (!task._showAdd) {
+    task._showAdd = true;
+    if (task.subtasks.length === 0) {
+      task.subtasks.push({ text: '', done: false });
+    }
+    render();
+    return;
+  }
+  task.subtasks.push({ text: '', done: false });
+  render();
+}
+
+function openIconPicker(e, task) {
+  e.stopPropagation();
+  document.querySelectorAll('.icon-picker').forEach(el => el.remove());
+
+  const picker = document.createElement('div');
+  picker.className = 'icon-picker';
+  ICON_SET.forEach(icon => {
+    const btn = document.createElement('button');
+    btn.textContent = icon;
+    btn.type = 'button';
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      task.icon = icon;
+      picker.remove();
+      render();
+    });
+    picker.appendChild(btn);
+  });
+
+  document.body.appendChild(picker);
+  const rect = e.target.getBoundingClientRect();
+  picker.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+  picker.style.left = (rect.left + window.scrollX) + 'px';
+
+  setTimeout(() => {
+    document.addEventListener('click', function closePicker() {
+      picker.remove();
+      document.removeEventListener('click', closePicker);
+    }, { once: true });
+  }, 0);
+}
+
+function moveTask(idx, dir) {
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= state.now.length) return;
+  const tmp = state.now[idx];
+  state.now[idx] = state.now[newIdx];
+  state.now[newIdx] = tmp;
+  render();
+}
+
+function moveBetween(task, fromKey, toKey) {
+  state[fromKey] = state[fromKey].filter(t => t.id !== task.id);
+  state[toKey].push(task);
+  render();
+}
+
+// --- focus timer ---
+let timerInterval = null;
+let remainingSeconds = 0;
+let totalSeconds = 0;
+let paused = false;
+let activeTask = null;
+
+function startFocus(task) {
+  activeTask = task;
+  totalSeconds = (task.est || 1) * 60;
+  remainingSeconds = totalSeconds;
+  paused = false;
+
+  document.getElementById('focusTaskName').textContent = task.content;
+  const meta = PRIORITY_META[task.priority] || PRIORITY_META.p4;
+  const badge = document.getElementById('focusBadge');
+  badge.className = 'badge ' + meta.color;
+  badge.textContent = meta.label.replace('Priority ', 'P');
+
+  document.getElementById('focusOverlay').classList.add('show');
+  document.getElementById('pauseResume').textContent = 'Pause';
+  updateRing();
+  tickDisplay();
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (paused) return;
+    remainingSeconds--;
+    if (remainingSeconds <= 0) {
+      remainingSeconds = 0;
+      tickDisplay();
+      updateRing();
+      clearInterval(timerInterval);
+      onTimerComplete();
+      return;
+    }
+    tickDisplay();
+    updateRing();
+  }, 1000);
+}
+
+function tickDisplay() {
+  const m = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
+  const s = (remainingSeconds % 60).toString().padStart(2, '0');
+  const text = m + ':' + s;
+  document.getElementById('timerDisplay').textContent = text;
+  document.title = text + ' — ' + (activeTask ? activeTask.content : 'Dino Focus');
+
+  const miniText = document.getElementById('miniTimerText');
+  if (miniText) miniText.textContent = text;
+
+  updatePipTimer();
+}
+
+function updateRing() {
+  const ring = document.getElementById('ringProgress');
+  const circumference = 2 * Math.PI * 108;
+  const pct = totalSeconds > 0 ? remainingSeconds / totalSeconds : 0;
+  ring.style.strokeDasharray = circumference;
+  ring.style.strokeDashoffset = circumference * (1 - pct);
+}
+
+function playChime() {
+  if (!document.getElementById('chimeToggle').checked) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.001, ctx.currentTime + i * 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + i * 0.18 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.6);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.18);
+      osc.stop(ctx.currentTime + i * 0.18 + 0.6);
+    });
+  } catch (e) {}
+}
+
+function onTimerComplete() {
+  playChime();
+  showToast("Time's up — nice work, wrap it up or mark it done.");
+}
+
+// --- pop-out / mini floating timer ---
+let pipWindow = null;
+
+async function popOutTimer() {
+  if ('documentPictureInPicture' in window) {
+    try {
+      pipWindow = await documentPictureInPicture.requestWindow({ width: 220, height: 220 });
+      buildPipContent();
+      updatePipTimer();
+      pipWindow.addEventListener('pagehide', () => { pipWindow = null; });
+      showToast('Floating timer window opened.');
+      return;
+    } catch (e) {
+      // fall through to mini timer
+    }
+  }
+  openMiniTimer();
+}
+
+function buildPipContent() {
+  const isDark = document.body.getAttribute('data-theme') === 'dark';
+  const bg = isDark ? '#241F2E' : '#FDF3E7';
+  const ringTrack = isDark ? '#3A3448' : '#ffffff';
+  const ringFill = isDark ? '#7FA3BC' : '#6E8FA8';
+  const textColor = isDark ? '#A9C6DA' : '#3E5C73';
+  const labelColor = isDark ? '#A9A196' : '#7A7368';
+
+  const style = pipWindow.document.createElement('style');
+  style.textContent = `
+    body { margin:0; font-family:-apple-system,sans-serif; background:${bg}; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
+    .ring-wrap { position:relative; width:150px; height:150px; }
+    #pring { transform: rotate(-90deg); transform-origin: 75px 75px; transition: stroke-dashoffset 1s linear; }
+    #ptext { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; color:${textColor}; font-variant-numeric: tabular-nums; }
+    #plabel { margin-top:10px; font-size:12px; color:${labelColor}; text-align:center; padding:0 12px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  `;
+  pipWindow.document.head.appendChild(style);
+
+  const wrap = pipWindow.document.createElement('div');
+  wrap.className = 'ring-wrap';
+  wrap.innerHTML =
+    '<svg width="150" height="150" viewBox="0 0 150 150">' +
+      '<circle cx="75" cy="75" r="64" fill="none" stroke="' + ringTrack + '" stroke-width="11"/>' +
+      '<circle id="pring" cx="75" cy="75" r="64" fill="none" stroke="' + ringFill + '" stroke-width="11" stroke-linecap="round"/>' +
+    '</svg>' +
+    '<div id="ptext">00:00</div>';
+  pipWindow.document.body.appendChild(wrap);
+
+  const label = pipWindow.document.createElement('div');
+  label.id = 'plabel';
+  label.textContent = activeTask ? activeTask.content : '';
+  pipWindow.document.body.appendChild(label);
+}
+
+function updatePipTimer() {
+  if (!pipWindow || pipWindow.closed) return;
+  const m = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
+  const s = (remainingSeconds % 60).toString().padStart(2, '0');
+  const text = m + ':' + s;
+
+  const ptext = pipWindow.document.getElementById('ptext');
+  if (ptext) ptext.textContent = text;
+
+  const plabel = pipWindow.document.getElementById('plabel');
+  if (plabel) plabel.textContent = activeTask ? activeTask.content : '';
+
+  const ring = pipWindow.document.getElementById('pring');
+  if (ring) {
+    const circumference = 2 * Math.PI * 64;
+    const pct = totalSeconds > 0 ? remainingSeconds / totalSeconds : 0;
+    ring.style.strokeDasharray = circumference;
+    ring.style.strokeDashoffset = circumference * (1 - pct);
+  }
+}
+
+function openMiniTimer() {
+  const mini = document.getElementById('miniTimer');
+  document.getElementById('miniTimerLabel').textContent = activeTask ? activeTask.content : '';
+  mini.style.display = 'block';
+  showToast('Mini timer pinned — you can drag it anywhere.');
+}
+
+function closeMiniTimer() {
+  const mini = document.getElementById('miniTimer');
+  if (mini) mini.style.display = 'none';
+}
+
+document.getElementById('popOutBtn').addEventListener('click', popOutTimer);
+document.getElementById('miniTimerClose').addEventListener('click', closeMiniTimer);
+
+// drag the mini timer
+(function enableMiniDrag() {
+  const mini = document.getElementById('miniTimer');
+  let dragging = false, offsetX = 0, offsetY = 0;
+  mini.addEventListener('mousedown', (e) => {
+    if (e.target.id === 'miniTimerClose') return;
+    dragging = true;
+    const rect = mini.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    mini.style.left = (e.clientX - offsetX) + 'px';
+    mini.style.top = (e.clientY - offsetY) + 'px';
+    mini.style.right = 'auto';
+    mini.style.bottom = 'auto';
+  });
+  document.addEventListener('mouseup', () => { dragging = false; });
+})();
+
+document.getElementById('pauseResume').addEventListener('click', () => {
+  paused = !paused;
+  document.getElementById('pauseResume').textContent = paused ? 'Resume' : 'Pause';
+});
+
+document.getElementById('minus5').addEventListener('click', () => {
+  remainingSeconds = Math.max(0, remainingSeconds - 300);
+  totalSeconds = Math.max(totalSeconds - 300, remainingSeconds);
+  tickDisplay();
+  updateRing();
+});
+
+document.getElementById('plus5').addEventListener('click', () => {
+  remainingSeconds += 300;
+  totalSeconds += 300;
+  tickDisplay();
+  updateRing();
+});
+
+document.getElementById('exitFocus').addEventListener('click', () => {
+  clearInterval(timerInterval);
+  document.getElementById('focusOverlay').classList.remove('show');
+  document.title = 'Dino Focus';
+});
+
+document.getElementById('finishNow').addEventListener('click', () => {
+  clearInterval(timerInterval);
+  completeTask(activeTask);
+  document.getElementById('focusOverlay').classList.remove('show');
+  document.title = 'Dino Focus';
+  closeMiniTimer();
+});
+
+function completeTask(task) {
+  if (!task) return;
+  state.now = state.now.filter(t => t.id !== task.id);
+  state.done.push(task);
+  render();
+  fireConfetti();
+  showToast('Marked done — great work!');
+  archiveCompletion(task);
+}
+
+// --- all-time completion archive (persists across days) ---
+const ARCHIVE_KEY = 'focusflow:archive';
+
+async function archiveCompletion(task) {
+  try {
+    let archive = [];
+    try {
+      const res = await storageBackend.get(ARCHIVE_KEY);
+      if (res && res.value) archive = JSON.parse(res.value);
+    } catch (e) {}
+    archive.push({
+      content: task.content,
+      priority: task.priority,
+      completedAt: new Date().toISOString()
+    });
+    if (archive.length > 500) archive = archive.slice(-500);
+    await storageBackend.set(ARCHIVE_KEY, JSON.stringify(archive));
+  } catch (e) {}
+}
+
+async function loadArchive() {
+  try {
+    const res = await storageBackend.get(ARCHIVE_KEY);
+    if (res && res.value) return JSON.parse(res.value);
+  } catch (e) {}
+  return [];
+}
+
+async function renderHistory() {
+  const archive = await loadArchive();
+  const container = document.getElementById('historyList');
+  container.innerHTML = '';
+  if (!archive.length) {
+    container.innerHTML = '<div class="empty-note">Nothing archived yet — completed tasks land here permanently, day after day.</div>';
+    return;
+  }
+  archive.slice().reverse().forEach(item => {
+    const meta = PRIORITY_META[item.priority] || PRIORITY_META.p4;
+    const row = document.createElement('div');
+    row.className = 'task-card ' + meta.color;
+    row.style.padding = '8px 14px';
+    const when = new Date(item.completedAt);
+    row.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">' +
+      '<span style="font-size:13px;">' + item.content.replace(/</g,'&lt;') + '</span>' +
+      '<span style="font-size:11px; color:var(--ink-soft); white-space:nowrap;">' + when.toLocaleDateString([], {month:'short', day:'numeric'}) + '</span>' +
+      '</div>';
+    container.appendChild(row);
+  });
+}
+
+document.getElementById('historyToggle').addEventListener('click', () => {
+  const panel = document.getElementById('historyPanel');
+  const isHidden = panel.classList.toggle('hidden');
+  document.getElementById('historyToggle').textContent = isHidden ? 'Show all-time history' : 'Hide all-time history';
+  if (!isHidden) renderHistory();
+});
+
+// --- confetti ---
+const confettiCanvas = document.getElementById('confettiCanvas');
+const cctx = confettiCanvas.getContext('2d');
+let confettiPieces = [];
+let confettiRunning = false;
+
+function resizeCanvas() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+const confettiColors = ['#F5A199', '#F7CB8B', '#9BD9C4', '#B7ACE0', '#6E8FA8'];
+
+function fireConfetti() {
+  confettiPieces = [];
+  for (let i = 0; i < 140; i++) {
+    confettiPieces.push({
+      x: Math.random() * confettiCanvas.width,
+      y: -20 - Math.random() * confettiCanvas.height * 0.3,
+      w: 6 + Math.random() * 6,
+      h: 8 + Math.random() * 8,
+      color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+      speedY: 2 + Math.random() * 3,
+      speedX: (Math.random() - 0.5) * 2,
+      rotation: Math.random() * 360,
+      rotationSpeed: (Math.random() - 0.5) * 10
+    });
+  }
+  if (!confettiRunning) {
+    confettiRunning = true;
+    requestAnimationFrame(animateConfetti);
+  }
+  setTimeout(() => { confettiPieces = []; }, 2600);
+}
+
+function animateConfetti() {
+  cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  confettiPieces.forEach(p => {
+    p.y += p.speedY;
+    p.x += p.speedX;
+    p.rotation += p.rotationSpeed;
+    cctx.save();
+    cctx.translate(p.x, p.y);
+    cctx.rotate((p.rotation * Math.PI) / 180);
+    cctx.fillStyle = p.color;
+    cctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    cctx.restore();
+  });
+  if (confettiPieces.length > 0) {
+    requestAnimationFrame(animateConfetti);
+  } else {
+    cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiRunning = false;
+  }
+}
+
+// --- live Todoist connection ---
+const TODOIST_TOKEN_KEY = 'focusflow:todoist-token';
+let todoistToken = null;
+
+const API_PRIORITY_TO_APP = { 4: 'p1', 3: 'p2', 2: 'p3', 1: 'p4' };
+
+const ICON_RULES = [
+  [/email|e-mail|reply|inbox/i, '✉️'],
+  [/github|upload|code|deploy|repo/i, '💻'],
+  [/clean|organize|tidy|declutter/i, '🧹'],
+  [/summarize|study|read|section|notes|learn/i, '📚'],
+  [/research|look ?up/i, '📌'],
+  [/call|meeting|zoom/i, '☎️'],
+  [/budget|money|pay|bill|invoice/i, '💰'],
+  [/school|class|homework|assignment|apply|application|job|intern/i, '🎓'],
+  [/project|build|app/i, '🧠']
+];
+
+function guessIcon(content) {
+  for (const [pattern, icon] of ICON_RULES) {
+    if (pattern.test(content)) return icon;
+  }
+  return '📌';
+}
+
+function guessEstimate(content) {
+  if (/email|reply/i.test(content)) return 10;
+  if (/summarize|study|write|research|learn/i.test(content)) return 30;
+  return 20;
+}
+
+function mapApiTask(t) {
+  return {
+    id: t.id,
+    content: t.content,
+    priority: API_PRIORITY_TO_APP[t.priority] || 'p4',
+    est: guessEstimate(t.content),
+    icon: guessIcon(t.content),
+    subtasks: []
+  };
+}
+
+async function loadTodoistToken() {
+  try {
+    const res = await storageBackend.get(TODOIST_TOKEN_KEY);
+    if (res && res.value) todoistToken = res.value;
+  } catch (e) {}
+  updateConnectUI();
+}
+
+async function saveTodoistToken(token) {
+  todoistToken = token;
+  try {
+    await storageBackend.set(TODOIST_TOKEN_KEY, token);
+  } catch (e) {}
+  updateConnectUI();
+}
+
+async function clearTodoistToken() {
+  todoistToken = null;
+  try {
+    await storageBackend.delete(TODOIST_TOKEN_KEY);
+  } catch (e) {}
+  updateConnectUI();
+}
+
+function updateConnectUI() {
+  const connected = !!todoistToken;
+  document.getElementById('connectBtn').textContent = connected ? '✅' : '🔗';
+  document.getElementById('connectBtn').title = connected ? 'Todoist connected' : 'Connect Todoist';
+  document.getElementById('disconnectRow').style.display = connected ? 'flex' : 'none';
+  document.getElementById('connectStatus').textContent = connected ? 'Connected — this app now pulls tasks live.' : '';
+  document.getElementById('connectBanner').classList.toggle('hidden', connected);
+  const syncBtn = document.getElementById('syncBtn');
+  syncBtn.textContent = connected ? 'Sync with Todoist' : 'Connect Todoist to sync';
+}
+
+async function todoistFetch(path, options = {}) {
+  const res = await fetch('https://api.todoist.com/api/v1' + path, {
+    ...options,
+    headers: {
+      'Authorization': 'Bearer ' + todoistToken,
+      ...(options.headers || {})
+    }
+  });
+  return res;
+}
+
+async function performSync({ closeDoneFirst, silent } = {}) {
+  if (!todoistToken) {
+    openConnectPanel();
+    return;
+  }
+  const syncBtn = document.getElementById('syncBtn');
+  syncBtn.disabled = true;
+  if (!silent) showToast('Syncing with Todoist…');
+  try {
+    if (closeDoneFirst && state.done.length) {
+      for (const t of state.done) {
+        await todoistFetch('/tasks/' + encodeURIComponent(t.id) + '/close', { method: 'POST' });
+      }
+      state.done = [];
+    }
+
+    // Todoist's REST v2 API was retired; tasks now come from the unified
+    // v1 API's dedicated filter endpoint, which returns a paginated
+    // { results: [...] } object rather than a bare array.
+    const res = await todoistFetch('/tasks/filter?query=' + encodeURIComponent('today | overdue') + '&limit=200');
+    if (res.status === 401 || res.status === 403) {
+      showToast('Todoist token rejected — reconnect with a valid token.');
+      clearTodoistToken();
+      return;
+    }
+    if (!res.ok) {
+      const bodyText = await res.text().catch(() => '');
+      throw new Error('HTTP ' + res.status + (bodyText ? ': ' + bodyText.slice(0, 200) : ''));
+    }
+    const data = await res.json();
+    const apiTasks = Array.isArray(data) ? data : (data.results || []);
+
+    const existingById = {};
+    [...state.now, ...state.notNow].forEach(t => { existingById[t.id] = t; });
+    const notNowIds = new Set(state.notNow.map(t => t.id));
+
+    state.now = apiTasks
+      .filter(t => !notNowIds.has(t.id))
+      .map(t => existingById[t.id] || mapApiTask(t));
+
+    render();
+    showToast(`Synced — ${state.now.length} task${state.now.length === 1 ? '' : 's'} due today.`);
+  } catch (e) {
+    showToast('Sync failed: ' + (e.message || 'unknown error'));
+  } finally {
+    syncBtn.disabled = false;
+  }
+}
+
+function openConnectPanel() {
+  document.getElementById('connectPanel').classList.remove('hidden');
+  document.getElementById('tokenInput').focus();
+}
+
+function closeConnectPanel() {
+  document.getElementById('connectPanel').classList.add('hidden');
+}
+
+document.getElementById('connectBtn').addEventListener('click', () => {
+  document.getElementById('connectPanel').classList.toggle('hidden');
+});
+
+document.getElementById('bannerConnectBtn').addEventListener('click', openConnectPanel);
+
+document.getElementById('saveTokenBtn').addEventListener('click', async () => {
+  const input = document.getElementById('tokenInput');
+  const token = input.value.trim();
+  if (!token) return;
+  await saveTodoistToken(token);
+  input.value = '';
+  closeConnectPanel();
+  showToast('Connected — pulling your tasks…');
+  await performSync({ closeDoneFirst: false, silent: true });
+});
+
+document.getElementById('tokenInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('saveTokenBtn').click();
+});
+
+document.getElementById('disconnectBtn').addEventListener('click', async () => {
+  await clearTodoistToken();
+  showToast('Disconnected from Todoist.');
+});
+
+document.getElementById('syncBtn').addEventListener('click', () => {
+  performSync({ closeDoneFirst: true });
+});
+
+async function init() {
+  updateDateLabel();
+  await loadTheme();
+  await loadFocusView();
+  await loadTodoistToken();
+  await loadState();
+  if (todoistToken) {
+    await performSync({ closeDoneFirst: false, silent: true });
+  }
+}
+init();
+</script>
+
+</body>
+</html>
